@@ -50,6 +50,39 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    const id = req.params.id;
 
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid book ID format",
+        });
+    }
+
+    try {
+        const db = getDB();
+        const query = { _id: new ObjectId(id) };
+        const book = await db.collection("books").findOne(query);
+
+        if (book === null) {
+            return res.status(404).json({
+                success: false,
+                message: "Book not found",
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Book fetched successfully",
+            data: book,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch book",
+        });
+    }
+});
 
 export const booksRouter = router;
