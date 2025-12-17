@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./db.js";
 import { booksRouter } from "./books.js";
+import { orderRouter } from './order.js';
+
 
 dotenv.config();
 
@@ -22,6 +24,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/v1/books/', booksRouter);
+app.use('/api/v1/orders/', orderRouter);
 
 
 app.use((req, res) => {
