@@ -6,6 +6,16 @@ import { middleware } from "./middleware.js";
 
 const router = express.Router();
 
+router.get("/", middleware.logger, middleware.verifyToken, async (req, res) => {
+    const db = getDB();
+    const orders = await db.collection("orders").find().toArray();
+    res.json({
+        success: true,
+        message: "Orders fetched successfully",
+        data: orders,
+    });
+})
+
 
 router.post("/", middleware.logger, middleware.verifyToken, async (req, res) => {
     const data = req.body;
