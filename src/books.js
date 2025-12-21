@@ -5,7 +5,6 @@ import { ObjectId } from "mongodb";
 const router = express.Router();
 
 router.get("/latest", async (req, res) => {
-    console.log(req.headers)
     try {
         const db = getDB();
         const books = await db
