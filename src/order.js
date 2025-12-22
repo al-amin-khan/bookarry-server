@@ -26,7 +26,7 @@ router.get("/", middleware.logger, middleware.verifyToken, async (req, res) => {
     }
 });
 
-router.get("/all", middleware.logger, middleware.verifyToken, async (req, res) => {
+router.get("/all", middleware.logger, middleware.logger, middleware.verifyToken, async (req, res) => {
     const db = getDB();
     const orders = await db.collection("orders").find().toArray();
     res.json({

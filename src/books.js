@@ -1,10 +1,11 @@
 import express from "express";
 import { getDB } from "./db.js";
 import { ObjectId } from "mongodb";
+import { middleware } from "./middleware.js";
 
 const router = express.Router();
 
-router.get("/latest", async (req, res) => {
+router.get("/latest",  middleware.logger,  async (req, res) => {
     try {
         const db = getDB();
         const books = await db
@@ -27,7 +28,7 @@ router.get("/latest", async (req, res) => {
     }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", middleware.logger,  async (req, res) => {
     try {
         const db = getDB();
         const books = await db
@@ -49,7 +50,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", middleware.logger, async (req, res) => {
     const id = req.params.id;
 
     if (!ObjectId.isValid(id)) {
@@ -85,7 +86,7 @@ router.get("/:id", async (req, res) => {
 });
 
 
-router.post("/", async (req, res) => {
+router.post("/", middleware.logger, middleware.verifyToken, middleware.verifyAdminOrLibrarian, async (req, res) => {
     const bookData = req.body;
     const db = getDB();
     const result = await db.collection("books").insertOne(bookData);
@@ -93,6 +94,44 @@ router.post("/", async (req, res) => {
         message: "Book added successfully",
         data: result,
     });
+});
+
+router.patch("/:id/status", middleware.verifyToken, middleware.verifyAdminOrLibrarian, async (req, res) => {
+    const id = req.params.id;
+    const { status } = req.body;
+    const allowedStatuses = ["published", "unpublished"];
+
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid book ID format",
+        });
+    }
+
+    if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid status",
+        });
+    }
+
+    try {
+        const db = getDB();
+        const query = { _id: new ObjectId(id) };
+        const update = { $set: { status } };
+        const result = await db.collection("books").updateOne(query, update);
+
+        res.json({
+            success: true,
+            message: "Book status updated successfully",
+            data: result,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to update book status",
+        });
+    }
 });
 
 
