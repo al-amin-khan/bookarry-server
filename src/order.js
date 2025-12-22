@@ -10,8 +10,6 @@ const router = express.Router();
 router.get("/", middleware.logger, middleware.verifyToken, async (req, res) => {
     const { email } = req.query;
 
-    console.log(req.decoded_email)
-
     if(email === req.decoded_email){
         const db = getDB();
         const orders = await db.collection("orders").find({email}).toArray();
@@ -71,7 +69,6 @@ router.put(`/:orderId/cancel`, middleware.logger, middleware.verifyToken, async 
 router.post("/", middleware.logger, middleware.verifyToken, async (req, res) => {
     const data = req.body;
     const db = getDB();
-    console.log(data)
     const order = await db.collection("orders").insertOne(data);
     res.json({
         success: true,

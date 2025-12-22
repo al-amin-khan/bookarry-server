@@ -84,4 +84,16 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+
+router.post("/", async (req, res) => {
+    const bookData = req.body;
+    const db = getDB();
+    const result = await db.collection("books").insertOne(bookData);
+    res.json({
+        message: "Book added successfully",
+        data: result,
+    });
+});
+
+
 export const booksRouter = router;

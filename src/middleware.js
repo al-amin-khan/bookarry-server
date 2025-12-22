@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import serviceAccount from "../bookarry-service-key.json" with { type: "json" };
+import { getDB } from "./db.js";
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -21,7 +22,6 @@ const verifyToken = async (req, res, next) => {
             const bearerToken = bearer[1];
             
             const decoded = await admin.auth().verifyIdToken(bearerToken);
-            console.log({decoded});
 
             req.decoded_email = decoded.email;
 
@@ -30,12 +30,31 @@ const verifyToken = async (req, res, next) => {
             return res.status(403).json({ message: "Forbidden access!" });
         }
     } catch (error) {
-        console.log(error);
         return res.status(401).json({ message: "Forbidden access!" });
+    }
+};
+
+const verifyAdmin = async (req, res, next) => {
+    const email = req.decoded_email;
+    
+    if (!email) {
+        return res.status(401).json({ message: "Unauthorized access!" });
+    }
+
+    const query = { email: email };
+    try {
+        const user = await getDB().collection("users").findOne(query);
+        if (user?.role !== "admin") {
+            return res.status(403).json({ message: "Forbidden access!" });
+        }
+        next();
+    } catch (error) {
+        return res.status(503).json({ message: "Service unavailable!" });
     }
 };
 
 export const middleware = {
     logger,
     verifyToken,
+    verifyAdmin,
 };

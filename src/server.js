@@ -5,6 +5,7 @@ import { connectDB } from "./db.js";
 import { booksRouter } from "./books.js";
 import { orderRouter } from './order.js';
 import { paymentRouter } from "./payment.js";
+import { userRouter } from "./User.js";
 
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 app.use('/api/v1/books/', booksRouter);
 app.use('/api/v1/orders/', orderRouter);
 app.use('/api/v1/payments/', paymentRouter);
+app.use('/api/v1/users/', userRouter);
 
 
 app.use((req, res) => {
