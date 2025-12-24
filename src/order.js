@@ -12,7 +12,7 @@ router.get("/", middleware.logger, middleware.verifyToken, async (req, res) => {
 
     if(email === req.decoded_email){
         const db = getDB();
-        const orders = await db.collection("orders").find({email}).toArray();
+        const orders = await db.collection("orders").find({email}).sort({created_at: -1}).toArray();
         res.json({
             success: true,
             message: "Orders fetched successfully",

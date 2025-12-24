@@ -1,6 +1,7 @@
 import express from "express";
 import { getDB } from "./db.js";
 import { middleware } from "./middleware.js";
+import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
@@ -60,16 +61,12 @@ router.get("/role", middleware.verifyToken, async (req, res) => {
     res.json({ message: "User role fetched successfully", data: result });
 });
 
-router.patch("/role", middleware.verifyToken, middleware.verifyAdmin, async (req, res) => {
-    const { email, role } = req.body;
+router.patch("/:id/role", middleware.verifyToken, middleware.verifyAdmin, async (req, res) => {
+    const id = req.params.id;
+    
+    const { role } = req.body;
+    
     const allowedRoles = ["admin", "librarian", "user"];
-
-    if (!email || !role) {
-        return res.status(400).json({
-            success: false,
-            message: "Email and role are required",
-        });
-    }
 
     if (!allowedRoles.includes(role)) {
         return res.status(400).json({
@@ -80,7 +77,7 @@ router.patch("/role", middleware.verifyToken, middleware.verifyAdmin, async (req
 
     const result = await getDB()
         .collection("users")
-        .updateOne({ email }, { $set: { role } });
+        .updateOne({ _id: new ObjectId(id) }, { $set: { role } });
 
     res.json({
         message: "User role updated successfully",
