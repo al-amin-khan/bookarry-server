@@ -134,5 +134,41 @@ router.patch("/:id/status", middleware.verifyToken, middleware.verifyAdminOrLibr
     }
 });
 
+router.delete("/:id", middleware.verifyToken, middleware.verifyAdmin,  async (req, res) => {
+    const id = req.params.id;
+
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid book ID format",
+        });
+    }
+
+    try {
+        const db = getDB();
+        const query = { _id: new ObjectId(id) };
+        const result = await db.collection("books").deleteOne(query);
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Book not found",
+            });
+        }    
+
+        res.json({
+            success: true,
+            message: "Book deleted successfully",
+            data: result,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete book",
+        });
+    }
+});
+
+
 
 export const booksRouter = router;
