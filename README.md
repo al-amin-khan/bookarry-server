@@ -45,7 +45,7 @@ The server extracts the user email from the token and uses it for authorization 
 
 All routes are prefixed with `/api/v1`.
 
-So the all the API route will be like: `b`
+So the all the API route will be like: `https://bookarry-server.vercel.app/api/v1`
 
 ### Books
 
